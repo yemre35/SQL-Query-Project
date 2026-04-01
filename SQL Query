@@ -45,7 +45,6 @@ group by c.CITY
 order by ortalamasiparistutarı desc 
 
 
-
 -- This query is used to find the number of users in all cities.
 select c.CITY,
 COUNT (a.USERID) as kullanıcısayisi
