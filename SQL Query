@@ -1,0 +1,55 @@
+-- In this query, we combine all tables and search for the first column. 
+select top 1 * from USERS u
+left join ADDRESS a on u.ID = a.USERID
+left join DISTRICTS d on a.DISTRICTID = d.ID
+left join TOWNS t on d.TOWNID = t.ID
+left join CITIES c on t.CITYID = c.ID 
+left join ORDERS o on u.ID = o.USERID
+left join ORDERDETAILS od on o.ID = od.ORDERID
+left join ITEMS i on od.ITEMID = i.ID
+left join PAYMENTS p on o.ID = p.ORDERID
+left join INVOICES iv on o.ID = iv.ORDERID
+left join INVOICEDETAILS ivd on iv.ID = ivd.INVOICEID
+left join SALEORDERS s on o.ID = s.ORDERID
+left join COUNTRIES cs on c.COUNTRYID = cs.ID
+order by u.ID 
+
+
+--This query finds the top 3 best-selling main categories and the top 3 best-selling subcategories within each category in each city.
+select c.CITY, c1.CATEGORY1, c2.CATEGORY2, SUM(c2.TOTALSALE)
+from SALEORDERS c
+cross apply 
+(select top 3 CATEGORY1, SUM(LINETOTAL) as TOTALSALE from SALEORDERS
+where CITY = c.CITY
+group by CATEGORY1
+order by 2 desc) c1
+cross apply 
+(select top 3 CATEGORY2, SUM(LINETOTAL) as TOTALSALE 
+from SALEORDERS
+where CITY = c.CITY
+and CATEGORY1 = c1.CATEGORY1 
+group by CATEGORY2
+order by 2 desc ) c2
+group by c.CITY, c1.CATEGORY1, c2.CATEGORY2
+order by 1,2,3,4 desc
+
+
+--This query finds the total number of orders and the average order value for each city.
+select c.CITY,
+COUNT (o.ID) as siparissayısı,
+AVG(o.TOTALPRICE) as ortalamasiparistutarı
+from ORDERS o
+join ADDRESS a on o.USERID = a.USERID
+join CITIES c on a.CITYID = c.ID
+group by c.CITY
+order by ortalamasiparistutarı desc 
+
+
+
+-- This query is used to find the number of users in all cities.
+select c.CITY,
+COUNT (a.USERID) as kullanıcısayisi
+from CITIES c
+left join ADDRESS a on c.ID = a.CITYID 
+group by c.CITY
+order by kullanıcısayisi desc
